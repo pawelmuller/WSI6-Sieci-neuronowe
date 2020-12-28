@@ -1,6 +1,7 @@
 from struct import unpack
 from array import array
 import numpy as np
+import matplotlib.pyplot as plt
 
 TEST_IMAGES_PATH = 'Data/t10k-images-idx3-ubyte'
 TEST_LABELS_PATH = 'Data/t10k-labels-idx1-ubyte'
@@ -43,8 +44,16 @@ def load_labels(filename, correct_magic_number):
     return labels
 
 
+def draw_image(image, label):
+    plt.imshow(image, cmap=plt.cm.gray)
+    plt.title(label)
+    plt.show()
+
+
 def main():
     train_data, test_data = import_data()
+    for i in range(0, 50, 5):
+        draw_image(train_data[0][i], str(train_data[1][i]))
 
 
 if __name__ == '__main__':
