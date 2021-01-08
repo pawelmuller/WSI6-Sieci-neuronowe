@@ -2,6 +2,7 @@ from struct import unpack
 from array import array
 import numpy as np
 import matplotlib.pyplot as plt
+from math import e
 
 TEST_IMAGES_PATH = 'Data/t10k-images-idx3-ubyte'
 TEST_LABELS_PATH = 'Data/t10k-labels-idx1-ubyte'
@@ -61,6 +62,16 @@ def draw_image(image, label):
 def show_some_images(data):
     for i in range(0, 50, 5):
         draw_image(data[0][i], str(data[1][i]))
+
+
+# ==================================================================================================================== #
+
+def sigmoid(x):
+    numerator = 1
+    denominator = 1 + e ** (-1 * x)
+    return numerator/denominator
+
+# ==================================================================================================================== #
 
 
 def main():
