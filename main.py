@@ -30,7 +30,7 @@ def load_images(filename, correct_magic_number):
         images = []
         for i in range(number_of_images):
             image = np.array(data[i * image_height * image_width:(i + 1) * image_height * image_width])
-            image = image.reshape(image_height, image_width)
+            # image = image.reshape(image_height, image_width)
             images.append(image)
     return images
 
@@ -45,15 +45,19 @@ def load_labels(filename, correct_magic_number):
 
 
 def draw_image(image, label):
+    image = image.reshape(28, 28)
     plt.imshow(image, cmap=plt.cm.gray)
     plt.title(label)
     plt.show()
 
 
+def show_some_images(data):
+    for i in range(0, 50, 5):
+        draw_image(data[0][i], str(data[1][i]))
+
+
 def main():
     train_data, test_data = import_data()
-    for i in range(0, 50, 5):
-        draw_image(train_data[0][i], str(train_data[1][i]))
 
 
 if __name__ == '__main__':
