@@ -31,6 +31,7 @@ def load_images(filename, correct_magic_number):
         for i in range(number_of_images):
             image = np.array(data[i * image_height * image_width:(i + 1) * image_height * image_width])
             # image = image.reshape(image_height, image_width)
+            image = map_values(image, 0.01, 1)
             images.append(image)
     return images
 
