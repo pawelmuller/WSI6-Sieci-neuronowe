@@ -35,6 +35,12 @@ def load_images(filename, correct_magic_number):
     return images
 
 
+def map_values(values, left, right):
+    fraction = (right - left) / max(values)
+    values = values * fraction + left
+    return values
+
+
 def load_labels(filename, correct_magic_number):
     with open(filename, 'rb') as file:
         magic_number, number_of_items = unpack(">II", file.read(LABELS_OFFSET))
