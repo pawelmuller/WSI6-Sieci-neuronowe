@@ -93,6 +93,12 @@ def sigmoid(x):
     denominator = 1.0 + e ** (-1.0 * x)
     return numerator/denominator
 
+
+def sigmoid_derivative(x):
+    numerator = e ** (-1.0 * x)
+    denominator = (e ** (-1.0 * x) + 1) ** 2
+    return numerator/denominator
+
 # ==================================================================================================================== #
 
 
