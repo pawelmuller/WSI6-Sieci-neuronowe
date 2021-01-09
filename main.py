@@ -6,7 +6,7 @@ from math import e
 from numpy.random import randn
 from random import shuffle
 
-
+# Global settings.
 TEST_IMAGES_PATH = 'Data/t10k-images-idx3-ubyte'
 TEST_LABELS_PATH = 'Data/t10k-labels-idx1-ubyte'
 TRAIN_IMAGES_PATH = 'Data/train-images-idx3-ubyte'
@@ -25,7 +25,12 @@ def import_data():
     test_images = load_images(TEST_IMAGES_PATH, 2051)
     train_labels, validate_labels = split_data(train_labels, VALIDATE_SET_LENGTH)
     train_images, validate_images = split_data(train_images, VALIDATE_SET_LENGTH)
-    return (train_images, train_labels), (test_images, test_labels), (validate_images, validate_labels)
+
+    train_data = pair_images_and_labels(train_images, train_labels)
+    test_data = pair_images_and_labels(test_images, test_labels)
+    validation_data = pair_images_and_labels(validate_images, validate_labels)
+
+    return train_data, test_data, validation_data
 
 
 def split_data(data, set_length):
@@ -57,6 +62,10 @@ def load_labels(filename, correct_magic_number):
             raise ValueError(f'Incorrect magic number. Expected {correct_magic_number}, got {magic_number}.')
         labels = array("B", file.read())
     return labels
+
+
+def pair_images_and_labels(images, labels):
+    return [pair for pair in zip(images, labels)]
 
 
 def map_values(values, left, right):
