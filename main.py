@@ -47,12 +47,6 @@ def load_images(filename, correct_magic_number):
     return images
 
 
-def map_values(values, left, right):
-    fraction = (right - left) / max(values)
-    values = values * fraction + left
-    return values
-
-
 def load_labels(filename, correct_magic_number):
     with open(filename, 'rb') as file:
         magic_number, number_of_items = unpack(">II", file.read(LABELS_OFFSET))
@@ -60,6 +54,12 @@ def load_labels(filename, correct_magic_number):
             raise ValueError(f'Incorrect magic number. Expected {correct_magic_number}, got {magic_number}.')
         labels = array("B", file.read())
     return labels
+
+
+def map_values(values, left, right):
+    fraction = (right - left) / max(values)
+    values = values * fraction + left
+    return values
 
 
 def draw_image(image, label):
