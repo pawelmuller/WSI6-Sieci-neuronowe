@@ -123,11 +123,12 @@ def initialise_network(layer_sizes):
     weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
 
 
-def calculate_network_result(network_input, weights, biases):
+
+def calculate_network_result(argument, weights, biases):
     for weight, bias in zip(weights, biases):
-        argument = np.dot(weight, network_input) + bias
-        result = sigmoid(argument)
-    return result
+        argument = np.dot(weight, argument) + bias
+        argument = sigmoid(argument)
+    return argument
 
 
 # ==================================================================================================================== #
