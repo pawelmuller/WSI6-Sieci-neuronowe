@@ -131,6 +131,17 @@ def calculate_network_result(argument, weights, biases):
     return argument
 
 
+def evaluate(test_data, weights, biases):
+    correct_answers_count = 0.0
+    for activations, correct_number in test_data:
+        network_prediction = calculate_network_result(activations, weights, biases)
+        network_prediction = np.argmax(network_prediction)
+        if correct_number == network_prediction:
+            correct_answers_count += 1.0
+    correctness_coefficient = round(correct_answers_count / len(test_data) * 100, 2)
+    return correctness_coefficient
+
+
 # ==================================================================================================================== #
 
 
