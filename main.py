@@ -3,6 +3,9 @@ from array import array
 import numpy as np
 import matplotlib.pyplot as plt
 from math import e
+from numpy.random import randn
+from random import shuffle
+
 
 TEST_IMAGES_PATH = 'Data/t10k-images-idx3-ubyte'
 TEST_LABELS_PATH = 'Data/t10k-labels-idx1-ubyte'
@@ -77,15 +80,16 @@ def show_some_images(data):
 # ==================================================================================================================== #
 
 def sigmoid(x):
-    numerator = 1
-    denominator = 1 + e ** (-1 * x)
+    numerator = 1.0
+    denominator = 1.0 + e ** (-1.0 * x)
     return numerator/denominator
 
 # ==================================================================================================================== #
 
 
 def main():
-    train_data, test_data = import_data()
+    train_data, test_data, validation_data = import_data()
+    print("Data has been imported.")
 
 
 if __name__ == '__main__':
