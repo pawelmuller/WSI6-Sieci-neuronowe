@@ -18,17 +18,19 @@ LABELS_OFFSET = 8
 VALIDATE_SET_LENGTH = 10000
 
 
-def import_data():
-    train_labels = load_labels(TRAIN_LABELS_PATH, 2049)
-    train_images = load_images(TRAIN_IMAGES_PATH, 2051)
-    test_labels = load_labels(TEST_LABELS_PATH, 2049)
-    test_images = load_images(TEST_IMAGES_PATH, 2051)
-    train_labels, validate_labels = split_data(train_labels, VALIDATE_SET_LENGTH)
-    train_images, validate_images = split_data(train_images, VALIDATE_SET_LENGTH)
+def import_set(labels_path, labels_number, images_path, images_number):
+    labels = load_labels(labels_path, labels_number)
+    images = load_images(images_path, images_number)
 
-    train_data = pair_images_and_labels(train_images, train_labels)
-    test_data = pair_images_and_labels(test_images, test_labels)
-    validation_data = pair_images_and_labels(validate_images, validate_labels)
+    return pair_images_and_labels(images, labels)
+
+
+def import_data():
+    train_data = import_set(TRAIN_LABELS_PATH, 2049, TRAIN_IMAGES_PATH, 2051)
+    test_data = import_set(TEST_LABELS_PATH, 2049, TEST_IMAGES_PATH, 2051)
+    train_data, validation_data = split_data(train_data, VALIDATE_SET_LENGTH)
+
+    train_data = convert_result_into_vector(train_data, 10)
 
     return train_data, test_data, validation_data
 
@@ -49,7 +51,7 @@ def load_images(filename, correct_magic_number):
         images = []
         for i in range(number_of_images):
             image = np.array(data[i * image_height * image_width:(i + 1) * image_height * image_width])
-            # image = image.reshape(image_height, image_width)
+            image = image.reshape(784, 1)
             image = map_values(image, 0.01, 1)
             images.append(image)
     return images
@@ -66,6 +68,17 @@ def load_labels(filename, correct_magic_number):
 
 def pair_images_and_labels(images, labels):
     return [pair for pair in zip(images, labels)]
+
+
+def convert_result_into_vector(data_set, vector_size):
+    new_data_set = []
+
+    for entry in data_set:
+        vector = np.zeros((vector_size, 1))
+        vector[entry[1]] = 1.0
+        new_entry = (entry[0], vector)
+        new_data_set.append(new_entry)
+    return new_data_set
 
 
 def map_values(values, left, right):
