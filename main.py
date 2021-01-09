@@ -87,6 +87,22 @@ def sigmoid(x):
 # ==================================================================================================================== #
 
 
+def initialise_network(layer_sizes):
+    layers_count = len(layer_sizes)
+    biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
+    weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
+
+
+def calculate_network_result(network_input, weights, biases):
+    for weight, bias in zip(weights, biases):
+        argument = np.dot(weight, network_input) + bias
+        result = sigmoid(argument)
+    return result
+
+
+# ==================================================================================================================== #
+
+
 def main():
     train_data, test_data, validation_data = import_data()
     print("Data has been imported.")
