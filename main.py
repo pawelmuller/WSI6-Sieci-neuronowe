@@ -12,13 +12,23 @@ TRAIN_LABELS_PATH = 'Data/train-labels-idx1-ubyte'
 IMAGES_OFFSET = 16
 LABELS_OFFSET = 8
 
+VALIDATE_SET_LENGTH = 10000
+
 
 def import_data():
     train_labels = load_labels(TRAIN_LABELS_PATH, 2049)
     train_images = load_images(TRAIN_IMAGES_PATH, 2051)
     test_labels = load_labels(TEST_LABELS_PATH, 2049)
     test_images = load_images(TEST_IMAGES_PATH, 2051)
-    return (train_images, train_labels), (test_images, test_labels)
+    train_labels, validate_labels = split_data(train_labels, VALIDATE_SET_LENGTH)
+    train_images, validate_images = split_data(train_images, VALIDATE_SET_LENGTH)
+    return (train_images, train_labels), (test_images, test_labels), (validate_images, validate_labels)
+
+
+def split_data(data, set_length):
+    first_set = data[:-set_length]
+    second_set = data[-set_length:]
+    return first_set, second_set
 
 
 def load_images(filename, correct_magic_number):
