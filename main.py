@@ -247,6 +247,39 @@ def learn_network(train_data, epochs_count, subset_size, step_size, layers_count
     return weights, biases
 
 
+def calculate_new_parameters(subset, step_size, layers_count, weights, biases):
+    subset_size = len(subset)
+
+    # v - ∇
+    v_weights = prepare_v_parameter_list(weights)
+    v_biases = prepare_v_parameter_list(biases)
+
+    for activations, correct_number in subset:
+        delta_v_weights, delta_v_biases = backpropagation(activations, correct_number, layers_count, weights, biases)
+        v_biases = [dnb + nb for dnb, nb in zip(delta_v_biases, v_biases)]
+        v_weights = [dnw + nw for dnw, nw in zip(delta_v_weights, v_weights)]
+
+    sizes_quotient = step_size / subset_size
+    new_weights = get_new_parameter(weights, v_weights, sizes_quotient)
+    new_biases = get_new_parameter(biases, v_biases, sizes_quotient)
+
+    return new_weights, new_biases
+
+
+def prepare_v_parameter_list(parameter):
+    parameter_list = []
+    for element in parameter:
+        parameter_list.append(np.zeros(element.shape))
+    return parameter_list
+
+
+def get_new_parameter(parameter, v_parameter, sizes_quotient):
+    new_parameter = []
+    for p, np in zip(parameter, v_parameter):
+        new_parameter.append(p - sizes_quotient * np)
+    return new_parameter
+
+
 # ==================================================================================================================== #
 
 
