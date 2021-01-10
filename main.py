@@ -202,11 +202,16 @@ def sigmoid_derivative(x):
 # ==================================================================================================================== #
 
 
-def initialise_network(layer_sizes):
+def initialise_network(layer_sizes, train_data, test_data=None, validation_data=None):
     layers_count = len(layer_sizes)
     biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
     weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
 
+    weights, biases = learn_network(train_data, 20, 32, 0.15, layers_count, weights, biases, test_data)
+
+    if validation_data:
+        correctness_coefficient = evaluate(validation_data, weights, biases)
+        print(f"Total network efficiency: {correctness_coefficient}.")
 
 
 def calculate_network_result(argument, weights, biases):
@@ -286,6 +291,8 @@ def get_new_parameter(parameter, v_parameter, sizes_quotient):
 def main():
     train_data, test_data, validation_data = import_data()
     print("Data has been imported.")
+
+    initialise_network([784, 30, 10], train_data, test_data, validation_data)
 
 
 if __name__ == '__main__':
