@@ -228,6 +228,25 @@ def evaluate(test_data, weights, biases):
     return correctness_coefficient
 
 
+def learn_network(train_data, epochs_count, subset_size, step_size, layers_count, weights, biases, test_data=None):
+    for epoch in range(epochs_count):
+        shuffle(train_data)
+
+        # Dividing train set into smaller subsets
+        subset_count = len(train_data) // subset_size
+        subsets = np.array_split(train_data, subset_count)
+
+        # 'Learning'
+        for subset in subsets:
+            weights, biases = calculate_new_parameters(subset, step_size, layers_count, weights, biases)
+
+        # Evaluating each epoch if test set provided
+        if test_data:
+            print(f"Epoch {epoch:>2} correctness coefficient: {evaluate(test_data, weights, biases)}%")
+
+    return weights, biases
+
+
 # ==================================================================================================================== #
 
 
