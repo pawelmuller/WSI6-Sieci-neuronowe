@@ -203,6 +203,14 @@ def sigmoid_derivative(x):
 
 
 def initialise_network(layer_sizes, train_data, test_data=None, validation_data=None):
+    """
+    Initialises network with random weights and biases, then starts learning.
+    :param layer_sizes: List representing each layer neuron count
+    (e.g. [10, 3] represents network with 10 and 3 neurons in respective layers).
+    :param train_data: Training data.
+    :param test_data: Optional. Test data used to determine network efficiency in each epoch.
+    :param validation_data: Optional. Validation data used to determine total network efficiency.
+    """
     layers_count = len(layer_sizes)
     biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
     weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
@@ -215,6 +223,13 @@ def initialise_network(layer_sizes, train_data, test_data=None, validation_data=
 
 
 def calculate_network_result(argument, weights, biases):
+    """
+    Calculates network result.
+    :param argument: Activations.
+    :param weights: Weights array.
+    :param biases: Biases array.
+    :return: Result.
+    """
     for weight, bias in zip(weights, biases):
         argument = np.dot(weight, argument) + bias
         argument = sigmoid(argument)
@@ -222,6 +237,13 @@ def calculate_network_result(argument, weights, biases):
 
 
 def evaluate(test_data, weights, biases):
+    """
+    Calculates correctness coefficient of the network for given test set.
+    :param test_data: Set used for testing.
+    :param weights: Weights array.
+    :param biases: Biases array.
+    :return: Correctness coefficient (in percents, rounded to 2 decimal digits).
+    """
     correct_answers_count = 0.0
     for activations, correct_number in test_data:
         # Looking for highest number in result array (it's index will equal network's number guess)
@@ -234,6 +256,18 @@ def evaluate(test_data, weights, biases):
 
 
 def learn_network(train_data, epochs_count, subset_size, step_size, layers_count, weights, biases, test_data=None):
+    """
+    Network learning framework.
+    :param train_data: Data used for training.
+    :param epochs_count: In how many epochs should the network be taught.
+    :param subset_size: Size of most training subsets.
+    :param step_size: Step size for stochastic gradient descent algorithm.
+    :param layers_count: How many layers there are.
+    :param weights: Weights array.
+    :param biases: Biases array.
+    :param test_data: Optional. Test data used to determine network efficiency in each epoch.
+    :return: Tuple of determined weights and biases.
+    """
     for epoch in range(epochs_count):
         shuffle(train_data)
 
