@@ -319,6 +319,39 @@ def get_new_parameter(parameter, v_parameter, sizes_quotient):
     return new_parameter
 
 
+def backpropagation(activation, expected_values, layers_count, weights, biases):
+    """
+    Performs the back propagation step.
+    :param activation: Activation values for nodes in the first layer.
+    :param expected_values: Values we want the algorithm to return. Compared with the values returned by algorithm to determine what changes to make.
+    :param layers_count: How many layers there are.
+    :param weights: Weights array.
+    :param biases: Biases array.
+    :return:  Tuple of lists of values to add to weights and biases. Determined by calculating gradient for the cost function for the neural network in current epoch.
+    """
+    v_b = prepare_v_parameter_list(biases)    # the output of the whole back propagation
+    v_w = prepare_v_parameter_list(weights)   # initiated with 0 for further filling from the end
+
+    layer_values = activation   # keeps node values from current layer
+    activations = [activation]  # keeps node values from all the layers
+    raw_node_values = []   # keeps node values from all the layers, but before applying sigmoid function
+    for weight, bias in zip(weights, biases):
+        raw_layer_values = np.dot(weight, layer_values) + bias
+        raw_node_values.append(raw_layer_values)
+        layer_values = sigmoid(raw_layer_values)
+        activations.append(layer_values)
+
+    v_b_layer = (activations[-1] - expected_values) * sigmoid_derivative(raw_node_values[-1])  # nabla b value for current layer
+    v_b[-1] = v_b_layer
+    v_w[-1] = np.dot(v_b_layer, activations[-2].transpose())
+
+    for layer in range(-2, -layers_count, -1):  # layers are counted from the end to the beginning. Percisely: layer=-1 means the last (final) layer, layer=-2 is the 2nd layer from the end etc.
+        raw_layer_values = raw_node_values[layer]
+        v_b_layer = np.dot(weights[layer + 1].transpose(), v_b_layer) * sigmoid_derivative(raw_layer_values)
+        v_b[layer] = v_b_layer
+        v_w[layer] = np.dot(v_b_layer, activations[layer - 1].transpose())
+    return v_w, v_b
+
 # ==================================================================================================================== #
 
 
