@@ -185,7 +185,7 @@ def sigmoid(x):
     """
     numerator = 1.0
     denominator = 1.0 + e ** (-1.0 * x)
-    return numerator/denominator
+    return numerator / denominator
 
 
 def sigmoid_derivative(x):
@@ -196,13 +196,14 @@ def sigmoid_derivative(x):
     """
     numerator = e ** (-1.0 * x)
     denominator = (e ** (-1.0 * x) + 1) ** 2
-    return numerator/denominator
+    return numerator / denominator
 
 
 # ==================================================================================================================== #
 
 
-def initialise_network(layer_sizes, train_data, test_data=None, validation_data=None):
+def initialise_network(layer_sizes, train_data, test_data=None, validation_data=None,
+                       epochs_count=20, subset_size=32, step_size=0.15):
     """
     Initialises network with random weights and biases, then starts learning.
     :param layer_sizes: List representing each layer neuron count
@@ -210,16 +211,22 @@ def initialise_network(layer_sizes, train_data, test_data=None, validation_data=
     :param train_data: Training data.
     :param test_data: Optional. Test data used to determine network efficiency in each epoch.
     :param validation_data: Optional. Validation data used to determine total network efficiency.
+    :param epochs_count: Optional. In how many epochs network should learn.
+    :param subset_size: Optional. How large is a subset the network is calculating new parameters with.
+    :param step_size: Optional. Step size for stochastic gradient descent algorithm.
     """
     layers_count = len(layer_sizes)
     biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
     weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
 
-    weights, biases = learn_network(train_data, 20, 32, 0.15, layers_count, weights, biases, test_data)
+    weights, biases = learn_network(train_data, epochs_count, subset_size,
+                                    step_size, layers_count, weights, biases, test_data)
 
     if validation_data:
         correctness_coefficient = evaluate(validation_data, weights, biases)
         print(f"Total network efficiency: {correctness_coefficient}.")
+
+    return correctness_coefficient
 
 
 def calculate_network_result(argument, weights, biases):
@@ -266,7 +273,7 @@ def learn_network(train_data, epochs_count, subset_size, step_size, layers_count
     :param weights: Weights array.
     :param biases: Biases array.
     :param test_data: Optional. Test data used to determine network efficiency in each epoch.
-    :return: Tuple of determined weights and biases.
+    :return: Tuple of determined weights, biases and correctness coefficient.
     """
     for epoch in range(epochs_count):
         shuffle(train_data)
@@ -281,7 +288,8 @@ def learn_network(train_data, epochs_count, subset_size, step_size, layers_count
 
         # Evaluating each epoch if test set provided
         if test_data:
-            print(f"Epoch {epoch:>2} correctness coefficient: {evaluate(test_data, weights, biases)}%")
+            correctness_coefficient = evaluate(test_data, weights, biases)
+            print(f"Epoch {epoch:>2} correctness coefficient: {correctness_coefficient}%")
 
     return weights, biases
 
@@ -323,34 +331,39 @@ def backpropagation(activation, expected_values, layers_count, weights, biases):
     """
     Performs the back propagation step.
     :param activation: Activation values for nodes in the first layer.
-    :param expected_values: Values we want the algorithm to return. Compared with the values returned by algorithm to determine what changes to make.
+    :param expected_values: Values we want the algorithm to return.
+    Compared with the values returned by algorithm to determine what changes to make.
     :param layers_count: How many layers there are.
     :param weights: Weights array.
     :param biases: Biases array.
-    :return:  Tuple of lists of values to add to weights and biases. Determined by calculating gradient for the cost function for the neural network in current epoch.
+    :return:  Tuple of lists of values to add to weights and biases.
+    Determined by calculating gradient for the cost function for the neural network in current epoch.
     """
-    v_b = prepare_v_parameter_list(biases)    # the output of the whole back propagation
-    v_w = prepare_v_parameter_list(weights)   # initiated with 0 for further filling from the end
+    v_b = prepare_v_parameter_list(biases)  # the output of the whole back propagation
+    v_w = prepare_v_parameter_list(weights)  # initiated with 0 for further filling from the end
 
-    layer_values = activation   # keeps node values from current layer
+    layer_values = activation  # keeps node values from current layer
     activations = [activation]  # keeps node values from all the layers
-    raw_node_values = []   # keeps node values from all the layers, but before applying sigmoid function
+    raw_node_values = []  # keeps node values from all the layers, but before applying sigmoid function
     for weight, bias in zip(weights, biases):
         raw_layer_values = np.dot(weight, layer_values) + bias
         raw_node_values.append(raw_layer_values)
         layer_values = sigmoid(raw_layer_values)
         activations.append(layer_values)
 
-    v_b_layer = (activations[-1] - expected_values) * sigmoid_derivative(raw_node_values[-1])  # nabla b value for current layer
+    # nabla b value for current layer:
+    v_b_layer = (activations[-1] - expected_values) * sigmoid_derivative(raw_node_values[-1])
     v_b[-1] = v_b_layer
     v_w[-1] = np.dot(v_b_layer, activations[-2].transpose())
 
-    for layer in range(-2, -layers_count, -1):  # layers are counted from the end to the beginning. Percisely: layer=-1 means the last (final) layer, layer=-2 is the 2nd layer from the end etc.
+    for layer in range(-2, -layers_count, -1):  # layers are counted from the end to the beginning.
+        # Precisely: layer=-1 means the last (final) layer, layer=-2 is the 2nd layer from the end etc.
         raw_layer_values = raw_node_values[layer]
         v_b_layer = np.dot(weights[layer + 1].transpose(), v_b_layer) * sigmoid_derivative(raw_layer_values)
         v_b[layer] = v_b_layer
         v_w[layer] = np.dot(v_b_layer, activations[layer - 1].transpose())
     return v_w, v_b
+
 
 # ==================================================================================================================== #
 
@@ -359,8 +372,17 @@ def main():
     train_data, test_data, validation_data = import_data()
     print("Data has been imported.")
 
-    initialise_network([784, 30, 10], train_data, test_data, validation_data)
+    epochs_counts = [30, 30, 30]
+    subset_sizes = [8, 8, 8]
+    step_sizes = [0.15, 0.7, 1.5]
+    results = []
+
+    for ec, subs, steps in zip(epochs_counts, subset_sizes, step_sizes):
+        result = initialise_network([784, 30, 10], train_data, test_data, validation_data, ec, subs, steps)
+        results.append(result)
+        print(f"{ec, subs, steps, result}")
 
 
 if __name__ == '__main__':
     main()
+
